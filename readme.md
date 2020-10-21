@@ -15,9 +15,19 @@ const og = require('open-graph');
 
 const url = 'http://github.com/samholmes/node-open-graph/raw/master/test.html';
 
+const options = {
+  userAgent: 'NodeOpenGraphCrawler (https://github.com/samholmes/node-open-graph)',
+  requestOptions: {
+    headers: {
+      'Accept-Language': 'fr',
+    },
+  },
+  strict: false,
+};
+
 og(url, function (err, meta) {
   console.log(meta);
-});
+}, options);
 ```
 
 Outputs:

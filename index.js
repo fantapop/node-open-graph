@@ -10,10 +10,21 @@ var shorthandProperties = {
 	"audio": "audio:url"
 }
 
+var defaultRequestOptions = {
+	encoding: 'utf8',
+	gzip: true,
+	jar: true,
+	headers: { 'User-Agent': 'NodeOpenGraphCrawler (https://github.com/samholmes/node-open-graph)' },
+}
 
 exports = module.exports = function(url, cb, options){
-  var userAgent = (options || {}).userAgent || 'NodeOpenGraphCrawler (https://github.com/samholmes/node-open-graph)'
-	exports.getHTML(url, userAgent, function(err, html){
+	var requestOptions = Object.assign({}, defaultRequestOptions, options.requestOptions || {});
+	requestOptions.headers = requestOptions.headers || {};
+ 	if (options.userAgent) {
+		requestOptions.headers['User-Agent'] = options.userAgent;
+	}
+
+	exports.getHTML(url, requestOptions, function(err, html){
 		if (err) return cb(err);
 
 		try {
@@ -28,21 +39,17 @@ exports = module.exports = function(url, cb, options){
 }
 
 
-exports.getHTML = function(url, userAgent, cb){
+exports.getHTML = function(url, requestOptions, cb){
 	var purl = require('url').parse(url);
 
 	if (!purl.protocol)
 		purl = require('url').parse("http://"+url);
 
-	url = require('url').format(purl);
+	var url = require('url').format(purl);
+	var requestOptionsWithUrl = Object.assign({}, requestOptions, { url });
+	console.log('calling request with options; ', JSON.stringify(requestOptionsWithUrl, null, 4));
 
-	request({
-			url: url,
-			encoding: 'utf8',
-			gzip: true,
-      jar: true,
-      headers: { 'User-Agent': userAgent },
-		},
+	request(requestOptionsWithUrl,
 		function(err, res, body) {
 			if (err) return cb(err);
 
